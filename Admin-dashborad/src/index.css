@@ -1,0 +1,27 @@
+#card-width {
+    max-width: 50% !important;
+}
+
+.costume-style {
+    display: flex;
+    justify-content: center;
+    height: auto;
+    align-items: center;
+    font-weight: bold;
+    /* margin-top: 0; */
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    transition: .5s ease-in-out all;
+}
+
+.costume-style:hover {
+    background-color: #e9e6e6e6;
+}
+
+.nav-link-custom {
+    color: white !important;
+}
+
+.nav-link-custom:hover {
+    color: #b82626e6 !important;
+}
