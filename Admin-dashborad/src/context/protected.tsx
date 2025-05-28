@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
+import type { RootState } from '../redux/store';
+
 
 // definierar typ för komponentens props
 interface ProtectedRouteProps {
