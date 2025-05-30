@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import useGet from "../hooks/useGet";
 import usePut from "../hooks/usePut";
 import { useDispatch, useSelector } from "react-redux";
-import {setMessage} from '../redux/slices/messageSlice';
+import {setLoading, setMessage} from '../redux/slices/messageSlice';
 import type { Message } from "../types/Message";
 import type { RootState } from "../redux/store";
 
@@ -10,8 +10,8 @@ interface GroupedMessages {
   [userId: string]: Message[];
 }
 
-function AdminInbox() {
-
+const AdminInbox = () => {
+  const { loading: messageLoading } = useSelector((state: RootState) => state.message);
   const dispatch = useDispatch();
   const [messages, setMessages] = useState<Message[]>([]);
   const [replyText, setReplyText] = useState("");
@@ -25,9 +25,10 @@ function AdminInbox() {
     data,
     error: fetchError,
     loading: fetchLoading,
+    fetchData
   } = useGet<Message[]>(
     `${Database_API_URL}/api/message/all`,
-    true,
+    messageLoading,
     "",
     token || ""
   );
@@ -51,6 +52,13 @@ function AdminInbox() {
       ? `${Database_API_URL}/api/message/reply/${lastMessageIdForUser}`
       : ""
   );
+
+  useEffect(() => {
+    if (messageLoading) {
+      fetchData()
+      dispatch(setLoading(false));
+    }
+  }, [messageLoading, fetchData])
 // uppdaterar meddelanden när nya data hämtats från databasen
   useEffect(() => {
     if (data) {

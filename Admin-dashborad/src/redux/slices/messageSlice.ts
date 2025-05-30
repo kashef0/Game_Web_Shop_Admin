@@ -4,10 +4,12 @@ import type { Message } from "../../types/Message";
 
 interface MessageState {
   messages: Message[];
+  loading: boolean
 }
 
 const initialState: MessageState = {
   messages: [],
+  loading: false
 };
 
 const messageSlice = createSlice({
@@ -17,10 +19,14 @@ const messageSlice = createSlice({
     // Sätter hela meddelande listan
     setMessage(state, action: PayloadAction<Message[]>) {
       state.messages = action.payload;
+      state.loading = false;
+    },
+    setLoading(state, action: PayloadAction<boolean>){
+        state.loading = action.payload;
     },
   },
 });
 
-export const { setMessage } = messageSlice.actions;
+export const { setMessage, setLoading } = messageSlice.actions;
 
 export default messageSlice.reducer;

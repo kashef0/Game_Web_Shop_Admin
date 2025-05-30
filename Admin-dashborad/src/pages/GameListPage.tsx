@@ -9,12 +9,14 @@ import ItemSearch from "../components/ItemSearch";
 import GameCard from "../components/GameCard";
 import type { RootState } from "../redux/store";
 import type { Games } from "../types/Game";
+import { setLoading } from "../redux/slices/orderSlice";
 
 const GameListPage = () => {
-  // hämtar spel från redux store
-  const { games } = useSelector((state: RootState) => state.game);
-
-  const dispatch = useDispatch();
+    
+    const dispatch = useDispatch();
+    // hämtar spel från redux store
+    const { games } = useSelector((state: RootState) => state.game);
+  const { messages, loading: messageLoaoding } = useSelector((state: RootState) => state.message);
 
   // lokal state för sök och sidhantering
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,6 +32,11 @@ const GameListPage = () => {
     error: backendError,
     loading: backendLoading,
   } = useGet<Games[]>(`${Database_API_URL}/api/games`, true);
+
+  useEffect(() => {
+    if (!messageLoaoding && messages.length === 0)
+    dispatch(setLoading(true));
+  }, [messages.length, messageLoaoding, dispatch]);
 
   // uppdaterar redux store när data har hämtats
   useEffect(() => {
