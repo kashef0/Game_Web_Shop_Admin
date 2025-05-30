@@ -1,4 +1,5 @@
-import { Games } from "./Game";
+import type { Games } from "./Game";
+
 
 export interface GameItem {
   game: Games;

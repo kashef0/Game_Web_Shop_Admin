@@ -3,6 +3,7 @@ import { logout } from "../redux/slices/authSlice";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { useState } from "react";
+import { HiOutlineInboxArrowDown } from "react-icons/hi2";
 import type { RootState } from "../redux/store";
 
 const NavBar = () => {
@@ -12,11 +13,16 @@ const NavBar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const { messages } = useSelector((state: RootState) => state.message);
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
   };
+
+  // filtrerar ut alla meddelanden där admin inte har svarat ännu
+  const messageCount = messages.filter(
+    (m) => !m.adminReply || m.adminReply.trim().length === 0
+  ).length;
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-dark bg-gradient px-3 ">
@@ -49,17 +55,26 @@ const NavBar = () => {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link nav-link-custom" to="/admin/Add_games">
+                <NavLink
+                  className="nav-link nav-link-custom"
+                  to="/admin/Add_games"
+                >
                   Add Games
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link nav-link-custom" to="/admin/games/:id/edit">
+                <NavLink
+                  className="nav-link nav-link-custom"
+                  to="/admin/games/:id/edit"
+                >
                   Edit Game
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link nav-link-custom" to="/AdminOrdersPage">
+                <NavLink
+                  className="nav-link nav-link-custom"
+                  to="/AdminOrdersPage"
+                >
                   Admin Orders
                 </NavLink>
               </li>
@@ -92,6 +107,20 @@ const NavBar = () => {
                     <Link to="/profile" className="dropdown-item">
                       <FaUserCircle className="me-2" />
                       Profile
+                    </Link>
+                    <Link
+                      to="/admin/AdminInbox"
+                      className="dropdown-item d-flex justify-content-between align-items-center"
+                    >
+                      <span>
+                        <HiOutlineInboxArrowDown className="me-2" />
+                        Inkorg
+                      </span>
+                      {messageCount > 0 && (
+                        <span className="badge bg-danger rounded-pill">
+                          {messageCount}
+                        </span>
+                      )}
                     </Link>
                     <button className="dropdown-item" onClick={handleLogout}>
                       <FaSignOutAlt className="me-2" />
