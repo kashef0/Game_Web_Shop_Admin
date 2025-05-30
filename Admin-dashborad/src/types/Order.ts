@@ -34,3 +34,12 @@ export interface Order {
 
 
 
+
+// SortOption används för att skapa dropdown menyn för sortering
+
+type SortOptionValue = "" | "date" | "user" | "price" | "isDelivered";
+
+export interface SortOption {
+  value: SortOptionValue;
+  label: string
+}
