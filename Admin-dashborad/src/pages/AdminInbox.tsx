@@ -117,13 +117,13 @@ const AdminInbox = () => {
     <div className="container my-4">
       <h2 className="mb-4">Admin Messages</h2>
       {messages.length === 0 ? (
-        <p>Inga meddelanden</p>
+        <p>There is no new messages</p>
       ) : (
         Object.entries(groupedMessages).map(([userId, userMessages]) => (
           <div key={userId} className="card mb-4 shadow-sm">
             <div className="card-header bg-secondary text-white">
               <h1 className="mb-0 fs-3">
-                Användare:{" "}  
+                Costumer:{" "}  
                 {userMessages[0].userId.email}
               </h1>
             </div>
@@ -140,7 +140,7 @@ const AdminInbox = () => {
                       <strong className="text-black">Subject:</strong> {msg.subject}
                     </h6>
                     <p className="mb-0">
-                      <strong>Costumer:</strong> {userMessages[0].userId.name} (
+                      <strong>Costumer's name:</strong> {userMessages[0].userId.name} (
                       {userMessages[0].userId.email})
                     </p>
 
