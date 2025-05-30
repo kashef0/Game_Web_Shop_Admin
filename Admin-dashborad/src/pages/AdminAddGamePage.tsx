@@ -140,7 +140,7 @@ const AdminAddGamePage = () => {
       </div>
 
       {getLoading && <p>Loading games...</p>}
-      {getError && <p>Error fetching games</p>}
+      {getError && <p>Error: {getError}</p>}
 
       <GameList results={results} setSelected={setSelected} />
 

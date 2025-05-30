@@ -8,6 +8,7 @@ import {
 } from "../redux/slices/authSlice";
 import usePost from "../hooks/usePost";
 import type { RootState } from "../redux/store";
+import Button from "./Button";
 
 type AuthFormProps = {
   isLogin: boolean;
@@ -31,7 +32,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
 
   // hook för post anrop url beroende på login eller register
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: postError, loading, postData } = usePost<any>(
+  const {
+    error: postError,
+    loading,
+    postData,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } = usePost<any>(
     isLogin
       ? `${BASE_URL}/api/auth/login-admin`
       : `${BASE_URL}/api/auth/register-admin`
@@ -77,7 +83,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
 
         navigate("/Games_List");
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       // vid fel sätt felmeddelande i redux
       dispatch(setAuthError(postError || "Authentication failed"));
@@ -145,9 +151,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
           )}
 
           <div className="d-grid mb-3">
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={loading}
+              classNames="w-100"
+            >
               {loading ? "Processing..." : isLogin ? "Login" : "Register"}
-            </button>
+            </Button>
           </div>
 
           <div className="text-center">
@@ -163,7 +174,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
           </div>
 
           {postError && (
-            <div className="alert alert-danger text-center mt-3">{postError}</div>
+            <div className="alert alert-danger text-center mt-3">
+              {postError}
+            </div>
           )}
 
           {status === "succeeded" && (

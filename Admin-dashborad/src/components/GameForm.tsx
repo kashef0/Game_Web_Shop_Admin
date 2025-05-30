@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import type { GameFromDB, Genre } from '../types/Game';
-
+import React, { useState, useEffect } from "react";
+import type { GameFromDB, Genre } from "../types/Game";
+import Button from "./Button";
 
 interface GameFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,24 +10,29 @@ interface GameFormProps {
   postError: string | null;
 }
 
-const GameForm: React.FC<GameFormProps> = ({ selected, onSave, loading, postError }) => {
-  const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [rentalPrice, setRentalPrice] = useState('');
+const GameForm: React.FC<GameFormProps> = ({
+  selected,
+  onSave,
+  loading,
+  postError,
+}) => {
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
+  const [rentalPrice, setRentalPrice] = useState("");
   const [availableForRent, setAvailableForRent] = useState(false);
 
   useEffect(() => {
     if (selected) {
-      setPrice('');
-      setStock('');
-      setRentalPrice('');
+      setPrice("");
+      setStock("");
+      setRentalPrice("");
       setAvailableForRent(false);
     }
   }, [selected]);
 
   const handleSubmit = () => {
     if (!selected || !price || !stock || !rentalPrice) {
-      alert('All fields are required');
+      alert("All fields are required");
       return;
     }
 
@@ -39,7 +44,7 @@ const GameForm: React.FC<GameFormProps> = ({ selected, onSave, loading, postErro
       availableForRent,
     };
 
-    onSave(gameData); 
+    onSave(gameData);
   };
 
   return (
@@ -50,9 +55,16 @@ const GameForm: React.FC<GameFormProps> = ({ selected, onSave, loading, postErro
         alt={selected?.name}
         className="img-fluid rounded mb-3"
       />
-      <p><strong>Release Date:</strong> {selected?.released}</p>
-      <p><strong>Rating:</strong> {selected?.rating}</p>
-      <p><strong>Genres:</strong> {selected?.genres?.map((g: Genre) => g.name).join(', ') || 'N/A'}</p>
+      <p>
+        <strong>Release Date:</strong> {selected?.released}
+      </p>
+      <p>
+        <strong>Rating:</strong> {selected?.rating}
+      </p>
+      <p>
+        <strong>Genres:</strong>{" "}
+        {selected?.genres?.map((g: Genre) => g.name).join(", ") || "N/A"}
+      </p>
 
       <div className="mb-3">
         <label className="form-label">Price</label>
@@ -97,15 +109,13 @@ const GameForm: React.FC<GameFormProps> = ({ selected, onSave, loading, postErro
         </label>
       </div>
 
-      <button
-        className="btn btn-success w-100"
-        onClick={handleSubmit}
-        disabled={loading}
-      >
-        {loading ? 'Saving...' : 'Save Game'}
-      </button>
+      <Button onClick={handleSubmit} variant="success" disabled={loading}>
+        {loading ? "Saving..." : "Save Game"}
+      </Button>
 
-      {postError && <div className="alert alert-danger text-center mt-3">{postError}</div>}
+      {postError && (
+        <div className="alert alert-danger text-center mt-3">{postError}</div>
+      )}
     </div>
   );
 };

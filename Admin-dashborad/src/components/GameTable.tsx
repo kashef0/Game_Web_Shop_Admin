@@ -1,4 +1,5 @@
 import type { GameDataForm } from "../types/Game";
+import Button from "./Button";
 
 
 interface GameTableProps {
@@ -83,20 +84,23 @@ const GameTable = ({
                 />
               </td>
               <td>
-                <button
-                  className="btn btn-sm btn-success me-2 mb-2"
+                <Button
                   onClick={handleUpdate}
+                  variant="success"
                   disabled={updateLoading}
+                  classNames="btn-sm me-2"
                 >
                   {updateLoading ? "Saving..." : "Save"}
-                </button>
-                <button
-                  className="btn btn-sm btn-secondary"
+                </Button>
+
+                <Button
                   onClick={handleCancelEdit}
+                  variant="secondary"
                   disabled={updateLoading}
+                  classNames="btn-sm me-2"
                 >
                   Cancel
-                </button>
+                </Button>
               </td>
             </tr>
           ) : (
@@ -107,19 +111,22 @@ const GameTable = ({
               <td>{game.stock}</td>
               <td>{game.availableForRent ? "Yes" : "No"}</td>
               <td>
-                <button
-                  className="btn btn-sm btn-warning me-2"
+                <Button
                   onClick={() => handleEditClick(game)}
+                  variant="warning"
+                  classNames="btn-sm me-2"
                 >
                   Edit
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
+                </Button>
+
+                <Button
                   onClick={() => handleDelete(game._id)}
+                  variant="danger"
                   disabled={deleteLoading}
+                  classNames="btn-sm"
                 >
                   {deleteLoading ? "Deleting..." : "Delete"}
-                </button>
+                </Button>
               </td>
             </tr>
           )
