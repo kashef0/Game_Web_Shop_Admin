@@ -37,6 +37,7 @@ export default function usePost<T>(url: string) : {
             const responseData = await response.json();  // Spara data
             setData(responseData);
             return responseData;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.log("err:: ",err)
             setError(err.message || "Kunde inte hämta data.");

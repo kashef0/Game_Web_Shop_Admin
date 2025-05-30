@@ -31,7 +31,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
   const BASE_URL = import.meta.env.VITE_DATABASE_API_URL;
 
   // hook för post anrop url beroende på login eller register
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const {
     error: postError,
     loading,
