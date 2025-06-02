@@ -11,6 +11,7 @@ import AdminInstructions from "./pages/AdminInstructions";
 import AdminEditGamePage from "./pages/AdminEditGamePage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import ProfilePage from "./pages/ProfilePage";
+import AdminInbox from "./pages/AdminInbox";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +80,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/AdminInbox",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminInbox />
           </ProtectedRoute>
         ),
       },

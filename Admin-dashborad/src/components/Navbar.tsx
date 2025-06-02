@@ -27,12 +27,12 @@ const NavBar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-dark bg-gradient px-3 ">
       <div className="container-fluid text-white">
-        <Link className="navbar-brand fw-bold text-white" to="/Games_List">
+        <Link className="navbar-brand fw-bold text-white" to="/">
           GameZone
         </Link>
 
         <button
-          className="navbar-toggler"
+          className="navbar-toggler bg-light"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#mainNavbar"
@@ -109,7 +109,7 @@ const NavBar = () => {
                       Profile
                     </Link>
                     <Link
-                      to="/admin/AdminInbox"
+                      to="/AdminInbox"
                       className="dropdown-item d-flex justify-content-between align-items-center"
                     >
                       <span>

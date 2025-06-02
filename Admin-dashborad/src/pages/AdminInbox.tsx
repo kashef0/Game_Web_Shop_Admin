@@ -2,76 +2,105 @@ import { useState, useEffect } from "react";
 import useGet from "../hooks/useGet";
 import usePut from "../hooks/usePut";
 import { useDispatch, useSelector } from "react-redux";
-import {setLoading, setMessage} from '../redux/slices/messageSlice';
+import { setLoading, setMessage } from "../redux/slices/messageSlice";
 import type { Message } from "../types/Message";
 import type { RootState } from "../redux/store";
+import { MdReply, MdEdit } from "react-icons/md";
 
+// definiera ett objekt som grupperar meddelanden efter användar id
 interface GroupedMessages {
   [userId: string]: Message[];
 }
 
 const AdminInbox = () => {
-  const { loading: messageLoading } = useSelector((state: RootState) => state.message);
-  const dispatch = useDispatch();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [replyText, setReplyText] = useState("");
-  const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  // hämta laddningsstatus för meddelanden från redux
+  const { loading: messageLoading } = useSelector(
+    (state: RootState) => state.message
+  );
 
+  // hämta token från redux
   const { token } = useSelector((state: RootState) => state.auth);
+
+  const dispatch = useDispatch();
+
   const Database_API_URL = import.meta.env.VITE_DATABASE_API_URL;
 
-    // hämtar alla meddelanden från databas
+  // lokalt state för alla meddelanden
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  // lokalt state för admins svar
+  const [replyText, setReplyText] = useState("");
+
+  // id för det meddelande som redigeras på just nu
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
+
+  // sparar originalsvaret innan redigering påbörjas
+  const [originalReply, setOriginalReply] = useState("");
+
+  // statusmeddelande som visar om svaret lyckades eller misslyckades
+  const [replyStatus, setReplyStatus] = useState<"success" | "error" | "">("");
+
+  // hämta alla meddelanden från backend
   const {
     data,
     error: fetchError,
     loading: fetchLoading,
-    fetchData
+    fetchData,
   } = useGet<Message[]>(
     `${Database_API_URL}/api/message/all`,
     messageLoading,
     "",
     token || ""
   );
-    // hittar det senaste meddelandet för användaren som är aktiv
-  const lastMessageIdForUser = activeUserId
-    ? messages
-        .filter((msg) => msg.userId._id === activeUserId)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )[0]?._id
-    : null;
- // hook för att skicka PUT request med svar till API
-  const {
-    data: putData,
-    error: putError,
-    loading: putLoading,
-    updateData,
-  } = usePut(
-    lastMessageIdForUser
-      ? `${Database_API_URL}/api/message/reply/${lastMessageIdForUser}`
+
+  // för att uppdatera ett svar
+  const { loading: putLoading, updateData } = usePut(
+    activeMessageId
+      ? `${Database_API_URL}/api/message/reply/${activeMessageId}`
       : ""
   );
 
+  // meddelanden ska hämtas och anropa fetch
   useEffect(() => {
     if (messageLoading) {
-      fetchData()
+      fetchData();
       dispatch(setLoading(false));
     }
-  }, [messageLoading, fetchData])
-// uppdaterar meddelanden när nya data hämtats från databasen
+  }, [messageLoading]);
+
+  // när data hämtas uppdatera lokalt state och redux store
   useEffect(() => {
     if (data) {
       setMessages(data);
-      dispatch(setMessage(data))
+      dispatch(setMessage(data));
     }
   }, [data]);
-     // När ett svar skickats uppdateras det lokala state
-  useEffect(() => {
-    if (putData && lastMessageIdForUser) {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          msg._id === lastMessageIdForUser
+
+  // gruppera meddelanden per användare
+  const groupedMessages: GroupedMessages = messages.reduce((groups, msg) => {
+    const id = msg.userId._id;
+    if (!groups[id]) groups[id] = [];
+    groups[id].push(msg);
+    return groups;
+  }, {} as GroupedMessages);
+
+  // användaren klickar på svara eller redigera
+  const handleReplyClick = (messageId: string, currentReply: string = "") => {
+    setActiveMessageId(messageId);
+    setReplyText(currentReply);
+    setOriginalReply(currentReply);
+    setReplyStatus("");
+  };
+
+  // användaren skickar in ett svar
+  const handleReplySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyText.trim() || !activeMessageId) return;
+
+    try {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === activeMessageId
             ? {
                 ...msg,
                 adminReply: replyText,
@@ -80,51 +109,96 @@ const AdminInbox = () => {
             : msg
         )
       );
-      setActiveUserId(null);
-      setReplyText("");
+
+      // skicka uppdateringen till backend
+      await updateData({ reply: replyText });
+      setReplyStatus("success");
+    } catch (error) {
+      console.error(error);
+      // återställ om det blev fel
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === activeMessageId
+            ? {
+                ...msg,
+                adminReply: originalReply,
+              }
+            : msg
+        )
+      );
+      setReplyStatus("error");
+    } finally {
+      setActiveMessageId(null);
     }
-  }, [putData, lastMessageIdForUser, replyText]);
-
-  // Grupperar meddelanden per användare
-  const groupedMessages: GroupedMessages = messages.reduce((groups, msg) => {
-    const id = msg.userId._id;
-    if (!groups[id]) groups[id] = [];
-    groups[id].push(msg);
-    return groups;
-  }, {} as GroupedMessages);
-// hanterar klick på svarsknapp för en användare
-  const handleReplyClick = (userId: string) => {
-    setActiveUserId(userId);
-    setReplyText("");
-  };
- //hanterar inskick av svar 
-  const handleReplySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyText.trim() || !lastMessageIdForUser) return;
-
-    await updateData({ reply: replyText });
   };
 
-  if (fetchLoading) return <p>Loading messages...</p>;
+  // avbrytning klick
+  const handleCancel = () => {
+    if (originalReply) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === activeMessageId
+            ? {
+                ...msg,
+                adminReply: originalReply,
+              }
+            : msg
+        )
+      );
+    }
+    setActiveMessageId(null);
+  };
+
+  // visa laddningsstatus
+  if (fetchLoading)
+    return (
+      <div className="text-center mt-5">
+        <div
+          className="spinner-border text-warning"
+          id="spinner-size"
+          role="status"
+        >
+          <span className="visually-hidden">Loading messages...</span>
+        </div>
+      </div>
+    );
+
+  // visa felmeddelande om hämtning misslyckas
   if (fetchError)
     return (
-      <p className="text-danger">
+      <div className="alert alert-danger" role="alert">
         Error retrieving messages: {fetchError}
-      </p>
+      </div>
     );
 
   return (
     <div className="container my-4">
+      {/* visa statusmeddelanden */}
+      {replyStatus === "success" && (
+        <div className="alert alert-success" role="alert">
+          Reply saved!
+        </div>
+      )}
+      {replyStatus === "error" && (
+        <div className="alert alert-danger" role="alert">
+          Failed to save reply!
+        </div>
+      )}
+
       <h2 className="mb-4">Admin Messages</h2>
+
+      {/* visa om det inte finns några meddelanden */}
       {messages.length === 0 ? (
-        <p>There is no new messages</p>
+        <div className="alert alert-warning" role="alert">
+          There are no new messages!
+        </div>
       ) : (
+        // visa grupperade meddelanden
         Object.entries(groupedMessages).map(([userId, userMessages]) => (
           <div key={userId} className="card mb-4 shadow-sm">
             <div className="card-header bg-secondary text-white">
               <h1 className="mb-0 fs-3">
-                Costumer:{" "}  
-                {userMessages[0].userId.email}
+                Customer: {userMessages[0].userId.email}
               </h1>
             </div>
             <div className="card-body">
@@ -137,68 +211,89 @@ const AdminInbox = () => {
                 .map((msg) => (
                   <div key={msg._id} className="mb-3 border-bottom pb-2">
                     <h6 className="card-subtitle mb-1 text-primary">
-                      <strong className="text-black">Subject:</strong> {msg.subject}
+                      <strong className="text-black">Subject:</strong>{" "}
+                      {msg.subject}
                     </h6>
                     <p className="mb-0">
-                      <strong>Costumer's name:</strong> {userMessages[0].userId.name} (
-                      {userMessages[0].userId.email})
+                      <strong>Customer's name:</strong> {msg.userId.name} (
+                      {msg.userId.email})
                     </p>
-
                     <p className="mb-1">
                       <strong>Message:</strong> {msg.message}
                     </p>
                     <p className="mb-1">
-                      <strong>Admins answer:</strong>{" "}
+                      <strong>Admin's answer:</strong>{" "}
                       {msg.adminReply ? (
                         <span className="text-success">{msg.adminReply}</span>
                       ) : (
-                        <span className="text-muted">Not answer yet</span>
+                        <span className="text-muted">Not answered yet</span>
                       )}
                     </p>
                     <small className="text-muted">
                       Sent: {new Date(msg.createdAt).toLocaleString()}
                     </small>
+
+                    {/* visa svarsfält om det är aktivt */}
+                    {activeMessageId === msg._id ? (
+                      <form onSubmit={handleReplySubmit} className="mt-2">
+                        <textarea
+                          className="form-control mb-2"
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          required
+                          rows={3}
+                          placeholder="Write your reply"
+                          disabled={putLoading}
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-primary me-2"
+                          disabled={putLoading}
+                        >
+                          {putLoading ? "Saving..." : "Save Reply"}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleCancel}
+                          disabled={putLoading}
+                        >
+                          Cancel
+                        </button>
+                      </form>
+                    ) : (
+                      <>
+                        <br />
+                        <button
+                          className={`btn mt-2 ${
+                            msg.adminReply
+                              ? "btn-outline-warning"
+                              : "btn-outline-primary"
+                          }`}
+                          onClick={() =>
+                            handleReplyClick(msg._id, msg.adminReply || "")
+                          }
+                        >
+                          {msg.adminReply ? (
+                            <>
+                              <MdEdit /> Edit Reply
+                            </>
+                          ) : (
+                            <>
+                              <MdReply /> Reply
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 ))}
-
-              {activeUserId === userId ? (
-                <form onSubmit={handleReplySubmit}>
-                  <div className="mb-3">
-                    <textarea
-                      className="form-control"
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      required
-                      rows={3}
-                      placeholder="Skriv svar här"
-                      disabled={putLoading}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={putLoading}
-                  >
-                    {putLoading ? "Skickar..." : "Skicka svar"}
-                  </button>
-                  {putError && (
-                    <p className="text-danger mt-2">Error in response: {putError}</p>
-                  )}
-                </form>
-              ) : (
-                <button
-                  className="btn btn-outline-primary"
-                  onClick={() => handleReplyClick(userId)}
-                >
-                  Answer
-                </button>
-              )}
             </div>
           </div>
         ))
       )}
     </div>
   );
-}
+};
 
 export default AdminInbox;

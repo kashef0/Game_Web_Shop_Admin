@@ -25,3 +25,9 @@
 .nav-link-custom:hover {
     color: #b82626e6 !important;
 }
+
+#spinner-size {
+    height: 10rem;
+    width: 10rem;
+    
+}
