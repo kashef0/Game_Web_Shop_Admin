@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Order } from "../../types/Order";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { Order } from "../../types/Order";
+
 // Typ för order tillståndet i Redux
 interface OrderState {
   orders: Order[];

@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Games } from "../../types/Game";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { Games } from "../../types/Game";
+
 
 // typ för tillståndet som hanterar spel listan
 interface GameState {

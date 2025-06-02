@@ -81,7 +81,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
         localStorage.setItem("username", responseData.name);
         localStorage.setItem("id", responseData._id);
 
-        navigate("/Games_List");
+        navigate("/");
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

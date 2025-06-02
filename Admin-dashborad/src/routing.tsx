@@ -15,12 +15,15 @@ import ProfilePage from "./pages/ProfilePage";
 const router = createBrowserRouter([
   {
     path: "/",
-
     element: <Layout />,
     children: [
       {
-        path: "*",
-        element: <App />,
+        path: "/",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <GameListPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/login",
@@ -30,20 +33,12 @@ const router = createBrowserRouter([
         path: "/register",
         element: <RegisterPage />,
       },
-
+      
       {
         path: "/admin/Add_games",
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <AdminAddGamePage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/Games_List",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <GameListPage />
           </ProtectedRoute>
         ),
       },
@@ -86,6 +81,10 @@ const router = createBrowserRouter([
             <ProfilePage />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "*",
+        element: <App />,
       },
     ],
   },

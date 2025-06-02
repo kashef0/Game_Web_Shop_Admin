@@ -50,7 +50,7 @@ const NavBar = () => {
           {isAuthenticated && (
             <ul className="navbar-nav me-auto mb-2 mb-lg-0 ">
               <li className="nav-item ">
-                <NavLink className="nav-link nav-link-custom" to="/Games_List">
+                <NavLink className="nav-link nav-link-custom" to="/">
                   Games List
                 </NavLink>
               </li>
