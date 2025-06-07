@@ -5,6 +5,7 @@ import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { useState } from "react";
 import { HiOutlineInboxArrowDown } from "react-icons/hi2";
 import type { RootState } from "../redux/store";
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
 const NavBar = () => {
   const { user, isAuthenticated } = useSelector(
@@ -30,15 +31,17 @@ const NavBar = () => {
         <Link className="navbar-brand fw-bold text-white" to="/">
           GameZone
         </Link>
+        {isAuthenticated && (
+          <button
+            className="navbar-toggler bg-light"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+        )}
 
-        <button
-          className="navbar-toggler bg-light"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNavbar"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
         <div
           className={
             isAuthenticated
@@ -89,8 +92,9 @@ const NavBar = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 style={{ cursor: "pointer" }}
               >
-                <div className="d-flex gap-2 nav-link-custom ">
-                  <p className="m-0">{user.email}</p>
+                <div className="d-flex gap-2 nav-link-custom">
+                  <p className="m-0">{user.email} {!showUserMenu ? <MdKeyboardArrowDown /> : <MdKeyboardArrowRight />}</p>
+                  
                   <img
                     src={user.profilePic}
                     alt="avatar"
@@ -98,6 +102,7 @@ const NavBar = () => {
                     width={30}
                     height={30}
                   />
+                  
                 </div>
                 {showUserMenu && (
                   <div
