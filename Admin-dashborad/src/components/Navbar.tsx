@@ -94,7 +94,6 @@ const NavBar = () => {
               >
                 <div className="d-flex gap-2 nav-link-custom">
                   <p className="m-0">{user.email} {!showUserMenu ? <MdKeyboardArrowDown /> : <MdKeyboardArrowRight />}</p>
-                  
                   <img
                     src={user.profilePic}
                     alt="avatar"
